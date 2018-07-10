@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -16,7 +18,6 @@ import android.widget.Toast;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.serialization.SoapObject;
-import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -139,6 +140,83 @@ public class MainActivity extends AppCompatActivity {
         listAdapter = new ListAdapter(this, gdata);
         listView.setAdapter(listAdapter);
 
+        edt_insert.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence charSequence, int i, int i1, int i2) {
+                Toast.makeText(MainActivity.this,charSequence.toString(),Toast.LENGTH_LONG).show();
+                progressBar.setVisibility(View.VISIBLE);
+                listView.setVisibility(View.GONE);
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            gdata.clear();
+                            final SoapObject request = new SoapObject(NAMESPACE, SEARCH);
+                            request.addProperty("f1", charSequence.toString());
+
+                            SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+                            envelope.dotNet = true;//若WS有輸入參數必須要加這一行否則WS沒反應Log.d("nick", "error");
+                            envelope.setOutputSoapObject(request);
+                            HttpTransportSE ht = new HttpTransportSE(URL);
+                            ht.call(NAMESPACE+SEARCH, envelope);
+
+                            final SoapObject soapObject = (SoapObject) envelope.getResponse();
+
+                            Log.d("nick",soapObject.getPropertyCount()+"");
+
+
+
+                            Log.d("nick",soapObject+"");
+
+                            //Log.d("nick",soapObject.getProperty(i).toString().split(" ")[2]+"");
+                            if(soapObject.getPropertyCount()==0)
+                            {
+                                HashMap<String, Object> item = new HashMap<>();
+                                item.put("a", "not found");
+                                item.put("b", "");
+                                item.put("c", "");
+                                gdata.add(item);
+                            } else {
+
+                                for (int i = 0; i < soapObject.getPropertyCount(); i++) {
+                                    HashMap<String, Object> item = new HashMap<>();
+                                    //Log.d("nick",soapObject.getProperty(i).toString().split(" ")[2]+"");
+                                    item.put("a", soapObject.getProperty(i).toString().split(" ")[0]);
+                                    item.put("b", soapObject.getProperty(i).toString().split(" ")[1]);
+                                    item.put("c", soapObject.getProperty(i).toString().split(" ")[2]);
+                                    //Log.d("nick",mlist+"");
+
+                                    gdata.add(item);
+                                }
+                            }
+                            runOnUiThread(new Runnable() {
+                                public void run() {
+                                    Log.d("nick", "end");
+                                    listAdapter.notifyDataSetChanged();
+                                    progressBar.setVisibility(View.GONE);
+                                    listView.setVisibility(View.VISIBLE);
+                                }
+                            });
+                        }catch (Exception e) {
+                            Log.d("nick", "error");
+                            Log.d("nick", "exception", e);
+                            e.printStackTrace();
+                        }
+                    }
+                }).start();
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int ii, long l) {
@@ -196,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btn_getdata.setOnClickListener(new View.OnClickListener() {
+        /*btn_getdata.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //handler.post(thread1);
@@ -269,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             }
-        });
+        });*/
     }
     @Override
     protected void onRestart()

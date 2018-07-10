@@ -1,9 +1,17 @@
 package com.example.user.myapplication;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatEditText;
 import android.text.InputFilter;
 import android.text.Spanned;
+import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,8 +26,10 @@ import static com.example.user.myapplication.MainActivity.INSERT;
 
 public class InsertActivity extends AppCompatActivity {
 
-    private EditText edt_f1, edt_f2, edt_f3;
+    //private EditText  edt_f2, edt_f3;
     private Button btn_insert, btn_cancel;
+
+    private Toast mToast;
 
     private static final String NAMESPACE = "http://tempuri.org/" ;
     private static final String URL = "http://10.0.2.2/WS_Server/WebService1.asmx";
@@ -32,6 +42,8 @@ public class InsertActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_insert);
+
+        final ClearEditText edt_f1,edt_f2,edt_f3;
 
         InputFilter filter=new InputFilter() {
             @Override
@@ -55,11 +67,31 @@ public class InsertActivity extends AppCompatActivity {
         edt_f3.setFilters(new InputFilter[]{filter});
 
 
+
         btn_insert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
+                if (TextUtils.isEmpty(edt_f1.getText())){
+                    //设置晃动
+                    edt_f1.setShakeAnimation();
+                    //设置提示
+                    showToast("f1不可為空");
+                    return;
+                }
+                if (TextUtils.isEmpty(edt_f2.getText())){
+                    //设置晃动
+                    edt_f2.setShakeAnimation();
+                    //设置提示
+                    showToast("f2不可為空");
+                    return;
+                }
+                if (TextUtils.isEmpty(edt_f3.getText())){
+                    //设置晃动
+                    edt_f3.setShakeAnimation();
+                    //设置提示
+                    showToast("f3不可為空");
+                    return;
+                }
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -94,5 +126,14 @@ public class InsertActivity extends AppCompatActivity {
             }
         });
     }
+    private void showToast(String msg) {
+        if (mToast == null){
+            mToast = Toast.makeText(this,msg,Toast.LENGTH_SHORT);
+        }else{
+            mToast.setText(msg);
+        }
+        mToast.show();
+    }
 }
+
 
