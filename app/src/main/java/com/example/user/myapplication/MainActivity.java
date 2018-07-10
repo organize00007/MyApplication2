@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String GETDATA = "getdata";
 
     //private static final String INSERT_SOAP_ACTION = "http://tempuri.org/insert";
-    private static final String INSERT = "insert";
+    public static final String INSERT = "insert";
     private static final String DELETE = "delete";
     private static final String UPDATE = "update";
     private static final String SEARCH = "search";
@@ -224,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
 
                                 final SoapObject soapObject = (SoapObject) envelope.getResponse();
 
+                                Log.d("nick",soapObject.getPropertyCount()+"");
+
 
 
                                 Log.d("nick",soapObject+"");
@@ -235,6 +237,7 @@ public class MainActivity extends AppCompatActivity {
                                     item.put("a", "not found");
                                     item.put("b", "");
                                     item.put("c", "");
+                                    gdata.add(item);
                                 } else {
 
                                     for (int i = 0; i < soapObject.getPropertyCount(); i++) {
